@@ -1,0 +1,19 @@
+on:
+  # Allows to run this workflow manually from the Actions tab
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  lints:
+    name: Build
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@main
+      - name: Build package
+        run: nix build .
+      - name: Build example
+        run: nix build --no-write-lock-file ./example#nixosConfigurations.example.config.system.build.toplevel
