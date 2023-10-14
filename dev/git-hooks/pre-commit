@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+# Automatically update deps-lock.json when committing a changed deps.edn
+
+# Redirect output to stderr.
+exec 1>&2
+
+if ! git diff --quiet --cached -- deps.edn; then
+  if which deps-lock > /dev/null; then
+	if ! deps-lock --deps-include ./deps.edn; then
+	  echo "Failed to create deps-lock.json"
+	  echo "Aborting commit"
+	  exit 1
+	fi
+	git add deps-lock.json
+  else
+	  echo "WARN: Updated deps.edn but cannot find deps-lock command to update deps-lock.json"
+  fi
+fi
