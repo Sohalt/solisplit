@@ -24,6 +24,7 @@
               projectSrc = ./.;
               name = "net.sohalt/fairsplit";
               main-ns = "net.sohalt.fairsplit.main";
+              java-opts = [ "-Dversion=${self.shortRev or "dev"}" ];
               nativeImage = {
                 enable = true;
                 graalvm = pkgs.graalvmCEPackages.graalvm-ce;

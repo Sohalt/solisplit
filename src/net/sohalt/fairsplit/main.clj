@@ -18,4 +18,5 @@
     (server/server-stop! @!server)))
 
 (defn -main [& args]
+  (println (format "Starting fairsplit (version %s)" (or (System/getProperty "version") "dev")))
   (start!))
