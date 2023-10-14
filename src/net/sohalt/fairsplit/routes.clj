@@ -9,6 +9,9 @@
 
 (defonce !shares (atom {}))
 
+(comment
+  (reset! !shares {}))
+
 (defn add-share [shares {:as share :keys [id]}]
   (assoc shares id share))
 
@@ -36,6 +39,9 @@
   {:status 302
    :headers {"Location" target}})
 
+(defn redirect-to-share [{:keys [id]}]
+  (redirect (str "/share/" id "/")))
+
 (defn create-person [name]
   (let [id (random-uuid)]
     {:id id
@@ -56,7 +62,7 @@
         names (filter (comp not str/blank?) name)
         {:as share :keys [id]} (create-share total names)]
     (swap! !shares add-share share)
-    (redirect (str "share/" id))))
+    (redirect-to-share share)))
 
 (defmacro page [& body]
   `(page/html5
@@ -77,17 +83,22 @@
    (page
     (create-share-form))))
 
-(defn render-share [{:keys [id total people]}]
+(defn everyone-submitted-bid? [{:keys [people]}]
+  (every? :bid (vals people)))
+
+(defn render-share [{:as share :keys [id total people]}]
   [:div
    [:p "total: " total (str " (" (/ total (count people)) " per person, when splitting equally)")]
    [:p "find your name and enter the maximum you'd be willing to contribute (leave other fields blank)"]
    [:form {:method "post"}
     (for [{:keys [id name bid]} (vals people)]
-      [:div {:class (if bid ["submitted"] [])} (form/label id name) (currency-input id) #_(when bid [:span.submitted "(already submitted)"])])
+      [:div {:class (if bid ["bg-green-200" "submitted"] [])} (form/label id name) (currency-input id) #_(when bid [:span.submitted "(already submitted)"])])
     [:input {:type "submit" :value "submit my contribution"}]]
-   [:form {:method "post"
+   [:form {:method "get"
            :action "check"}
-    [:input#check {:type "submit" :value "check if goal is reached"}]]])
+    [:input#check {:type "submit"
+                   :value "check if goal is reached"
+                   :disabled (not (everyone-submitted-bid? share))}]]])
 
 (defn not-found-response []
   {:status 404
@@ -98,8 +109,6 @@
     (if-let [share (@!shares id)]
       (html-response (page (render-share share)))
       (not-found-response))))
-
-(defn update-bids [share])
 
 (defn deep-merge [a b]
   (reduce (fn [acc k] (update acc k merge (b k))) a (keys a)))
@@ -119,11 +128,13 @@
 
 (defn handle-update-share [{:keys [path-params form-params]}]
   (let [id (parse-uuid (:share-id path-params))
-        bids (into {} (map (fn [[id bid]] [(parse-uuid id) {:bid (parse-currency bid)}]) form-params))]
+        bids (into {} (filter identity (map (fn [[id bid]] (when-let [bid (parse-currency bid)]
+                                             [(parse-uuid id) {:bid bid}]))
+                            form-params)))]
     (if-let [share (@!shares id)]
       (do
         (swap! !shares (fn [shares] (update-in shares [id :people] deep-merge bids)))
-        (redirect (str "/share/" id)))
+        (redirect-to-share share))
       (not-found-response))))
 
 (defn total-committed [{:keys [people]}]
@@ -135,7 +146,7 @@
 (defn compute-distribution [{:as share :keys [total people]}]
   (assert (goal-reached? share))
   (let [tc (total-committed share)
-        ratio (/ tc total)]
+        ratio (/ total tc)]
     (into {} (map (fn [[id {:keys [bid]}]] [id (* bid ratio)]) people))))
 
 (comment
@@ -156,27 +167,32 @@
   (= 5 (total-committed share))
   (= false (goal-reached? share))
   (= true (goal-reached? share2))
-  (compute-distribution share2))
+  (= {#uuid "ec0f24ac-0bda-4bb7-b286-dd364c2c8af1" 2,
+      #uuid "d7a3f660-ffc9-4cf4-a51c-4fa0f5877d04" 3,
+      #uuid "c455da09-ee73-4ca0-b652-c741231c1627" 2}
+     (compute-distribution share2))
+  (render-distribution share2))
 
 (defn render-distribution [{:as share :keys [people]}]
-  [:div
-   (for [[id contribution] (compute-distribution share)]
-     (let [name (get-in share [:people id :name])]
-       [:> [:span name] [:span contribution]]))])
+  (into [:div]
+        (for [[id contribution] (compute-distribution share)]
+          (let [name (get-in share [:people id :name])]
+            [:div [:span name] [:span contribution]]))))
 
 (defn render-not-reached [{:as share :keys [total people]}]
   (let [tc (total-committed share)
         missing (- total tc)
         missing-per-person (/ missing (count people))]
-    [:p (str "We are " missing " short (" missing-per-person ") per person, when splitting equally.")]))
+    [:div [:p (str "We are " missing " short (" missing-per-person ") per person, when splitting equally.")]
+     [:a {:href (share-link share)} "back"]]))
 
 (defn handle-check [{:keys [path-params]}]
   (let [id (parse-uuid (:share-id path-params))]
     (if-let [{:as share :keys [people]} (@!shares id)]
-      (if (every? :bid (vals people))
+      (if (everyone-submitted-bid? share)
         (if (goal-reached? share)
-          (html-response (render-distribution share))
-          (html-response (render-not-reached share)))
+          (html-response (page (render-distribution share)))
+          (html-response (page (render-not-reached share))))
         (html-response "not everyone has submitted a bid yet"))
       (not-found-response))))
 
@@ -186,7 +202,7 @@
             ["/" {:get create-project-form
                   :post handle-create-share}]
             ["/share/:share-id"
-             ["" {:get handle-view-share
+             ["/" {:get handle-view-share
                   :post handle-update-share}]
              ["/check" {:get handle-check}]]])
           (rr/create-resource-handler {:path "/"})
