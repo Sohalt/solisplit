@@ -710,6 +710,16 @@
       "hash": "sha256-VgxwUd3HaOE3LkCHlwdk5MATkDxdxutSwph3Nw2uJpQ="
     },
     {
+      "mvn-path": "org/babashka/cli/0.7.53/cli-0.7.53.jar",
+      "mvn-repo": "https://repo.clojars.org/",
+      "hash": "sha256-n2GpmSZvwc3EFTsZ1S+yOQIAg5pT1zG+P6V6Os3RmQ4="
+    },
+    {
+      "mvn-path": "org/babashka/cli/0.7.53/cli-0.7.53.pom",
+      "mvn-repo": "https://repo.clojars.org/",
+      "hash": "sha256-vJmtZNNep3lDzOQDp0I+4+h5QkJKVWE16PZ2wiOC9h4="
+    },
+    {
       "mvn-path": "org/clojure/clojure/1.10.3/clojure-1.10.3.jar",
       "mvn-repo": "https://repo1.maven.org/maven2/",
       "hash": "sha256-fxJHLa7Y9rUXSYqqKrE6ViR1w+31FHjkWBzHYemJeaM="
