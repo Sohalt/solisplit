@@ -1,6 +1,7 @@
 (ns net.sohalt.fairsplit.main
   (:require [org.httpkit.server :as server]
-            [net.sohalt.fairsplit.routes :as routes]))
+            [net.sohalt.fairsplit.routes :as routes])
+  (:gen-class))
 
 (defonce !server (atom nil))
 

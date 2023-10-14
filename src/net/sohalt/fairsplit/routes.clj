@@ -129,8 +129,8 @@
 (defn handle-update-share [{:keys [path-params form-params]}]
   (let [id (parse-uuid (:share-id path-params))
         bids (into {} (filter identity (map (fn [[id bid]] (when-let [bid (parse-currency bid)]
-                                             [(parse-uuid id) {:bid bid}]))
-                            form-params)))]
+                                                             [(parse-uuid id) {:bid bid}]))
+                                            form-params)))]
     (if-let [share (@!shares id)]
       (do
         (swap! !shares (fn [shares] (update-in shares [id :people] deep-merge bids)))
@@ -183,8 +183,7 @@
   (let [tc (total-committed share)
         missing (- total tc)
         missing-per-person (/ missing (count people))]
-    [:div [:p (str "We are " missing " short (" missing-per-person ") per person, when splitting equally.")]
-     [:a {:href (share-link share)} "back"]]))
+    [:div [:p (str "We are " missing " short (" missing-per-person ") per person, when splitting equally.")]]))
 
 (defn handle-check [{:keys [path-params]}]
   (let [id (parse-uuid (:share-id path-params))]
@@ -203,7 +202,7 @@
                   :post handle-create-share}]
             ["/share/:share-id"
              ["/" {:get handle-view-share
-                  :post handle-update-share}]
+                   :post handle-update-share}]
              ["/check" {:get handle-check}]]])
           (rr/create-resource-handler {:path "/"})
           {:middleware [params/wrap-params
