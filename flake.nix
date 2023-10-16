@@ -22,8 +22,8 @@
           modules = [
             {
               projectSrc = ./.;
-              name = "net.sohalt/fairsplit";
-              main-ns = "net.sohalt.fairsplit.main";
+              name = "net.sohalt/solisplit";
+              main-ns = "net.sohalt.solisplit.main";
               java-opts = [ "-Dversion=\"${self.shortRev or "dev"}\"" ];
               #nativeImage = {
               #  enable = true;

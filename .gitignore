@@ -21,3 +21,5 @@ pom.xml.asc
 .clerk/
 
 .direnv/
+
+result

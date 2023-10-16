@@ -1,4 +1,4 @@
-(ns net.sohalt.fairsplit.routes
+(ns net.sohalt.solisplit.routes
   (:require
    [hiccup.form :as form]
    [hiccup.page :as page]

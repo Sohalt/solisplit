@@ -1,8 +1,8 @@
-(ns net.sohalt.fairsplit.main
+(ns net.sohalt.solisplit.main
   (:require
    [babashka.cli :as cli]
    [org.httpkit.server :as server]
-   [net.sohalt.fairsplit.routes :as routes])
+   [net.sohalt.solisplit.routes :as routes])
   (:gen-class))
 
 (defonce !server (atom nil))
@@ -21,5 +21,5 @@
 
 (keys (System/getProperties))
 (defn -main [& args]
-  (println (format "Starting fairsplit (version %s)" (or (System/getProperty "version") "dev")))
+  (println (format "Starting solisplit (version %s)" (or (System/getProperty "version") "dev")))
   (start! (cli/parse-opts *command-line-args*)))
