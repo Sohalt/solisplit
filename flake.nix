@@ -14,21 +14,25 @@
     clj-nix,
   }:
     flake-utils.lib.eachDefaultSystem (system: let
-      pkgs = nixpkgs.legacyPackages.${system};
+      pkgs = import nixpkgs {
+        inherit system;
+        overlays = [self.overlays.default];
+      };
     in {
       packages = {
-        default = clj-nix.lib.mkCljApp {
-          inherit pkgs;
+        default = pkgs.solisplit;
+        solisplit = pkgs.solisplit;
+      };
+
+      overlays.default = final: prev: {
+        solisplit = clj-nix.lib.mkCljApp {
+          pkgs = final;
           modules = [
             {
               projectSrc = ./.;
               name = "net.sohalt/solisplit";
               main-ns = "net.sohalt.solisplit.main";
-              java-opts = [ "-Dversion=\"${self.shortRev or "dev"}\"" ];
-              #nativeImage = {
-              #  enable = true;
-              #  graalvm = pkgs.graalvmCEPackages.graalvm-ce;
-              #};
+              java-opts = ["-Dversion=\"${self.shortRev or "dev"}\""];
             }
           ];
         };

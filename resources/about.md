@@ -27,8 +27,3 @@ This time Alice offers to pay up to 400€, Bob and Charlie each offer to pay up
 - Charlie: 600 * 200/800 = 150
 
 As we can see Bob and Charlie pay the same, since they entered the same maximum. Alice pays double what Bob or Charlie are paying, since her maximum was twice that of Bob or Charlie. Also everyone pays less than their stated maximum and the sum of everyone's share adds up to the required total.
-
-## Data Protection
-
-All data is ephemeral and only kept in memory.
-No access logs are kept.
