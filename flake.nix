@@ -23,7 +23,15 @@
         default = pkgs.solisplit;
         solisplit = pkgs.solisplit;
       };
-
+      devShells.default = pkgs.mkShell {
+        packages = with pkgs; [
+          clojure
+          babashka
+          clj-nix.packages.${system}.deps-lock
+        ];
+      };
+    })
+    // {
       overlays.default = final: prev: {
         solisplit = clj-nix.lib.mkCljApp {
           pkgs = final;
@@ -37,13 +45,5 @@
           ];
         };
       };
-
-      devShells.default = pkgs.mkShell {
-        packages = with pkgs; [
-          clojure
-          babashka
-          clj-nix.packages.${system}.deps-lock
-        ];
-      };
-    });
+    };
 }
