@@ -15,3 +15,5 @@ jobs:
         uses: DeterminateSystems/nix-installer-action@main
       - name: Build package
         run: nix build .
+      - name: Build example
+        run: nix build ./example#nixosConfigurations.example.config.system.build.toplevel
