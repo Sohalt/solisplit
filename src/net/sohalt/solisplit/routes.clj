@@ -22,6 +22,13 @@
 (defn parse-currency [s]
   (parse-double s))
 
+(defn format-currency [x]
+  (format "%.2f" x))
+
+(comment
+  (let [x (double (/ (rand-int 1000) 100))]
+    (= x (parse-currency (format-currency x)))))
+
 (defn currency-input [name]
   [:input {:type "number"
            :name name
@@ -88,7 +95,7 @@
 
 (defn render-share [{:as share :keys [id total people]}]
   [:div
-   [:p "total: " total (str " (" (/ total (count people)) " per person, when splitting equally)")]
+   [:p "total: " (format-currency total) (str " (" (format-currency (/ total (count people))) " per person, when splitting equally)")]
    [:p "find your name and enter the maximum you'd be willing to contribute (leave other fields blank)"]
    [:form {:method "post"}
     (for [{:keys [id name bid]} (vals people)]
@@ -177,13 +184,13 @@
   (into [:div]
         (for [[id contribution] (compute-distribution share)]
           (let [name (get-in share [:people id :name])]
-            [:div [:span name] [:span contribution]]))))
+            [:div [:span name] [:span (format-currency contribution)]]))))
 
 (defn render-not-reached [{:as share :keys [total people]}]
   (let [tc (total-committed share)
         missing (- total tc)
         missing-per-person (/ missing (count people))]
-    [:div [:p (str "We are " missing " short (" missing-per-person ") per person, when splitting equally.")]]))
+    [:div [:p (str "We are " (format-currency missing) " short (" (format-currency missing-per-person) ") per person, when splitting equally.")]]))
 
 (defn handle-check [{:keys [path-params]}]
   (let [id (parse-uuid (:share-id path-params))]
