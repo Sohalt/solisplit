@@ -17,6 +17,7 @@ in
     };
     config = mkIf cfg.enable {
       systemd.services.solisplit = {
+        wantedBy = ["multi-user.target"];
         script = "${pkgs.solisplit}/bin/solisplit --port ${toString cfg.port}";
       };
     };
