@@ -16,4 +16,4 @@ jobs:
       - name: Build package
         run: nix build .
       - name: Build example
-        run: nix build ./example#nixosConfigurations.example.config.system.build.toplevel
+        run: nix build --no-write-lock-file ./example#nixosConfigurations.example.config.system.build.toplevel
