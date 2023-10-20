@@ -17,7 +17,7 @@ in
     };
     config = mkIf cfg.enable {
       systemd.services.solisplit = {
-        script = "${pkgs.solisplit}/bin/solisplit";
+        script = "${pkgs.solisplit}/bin/solisplit --port ${toString cfg.port}";
       };
     };
   }
