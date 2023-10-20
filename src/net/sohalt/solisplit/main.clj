@@ -19,7 +19,6 @@
     {:error "Server not running"}
     (server/server-stop! @!server)))
 
-(keys (System/getProperties))
 (defn -main [& args]
   (println (format "Starting solisplit (version %s)" (or (System/getProperty "version") "dev")))
-  (start! (cli/parse-opts *command-line-args*)))
+  (start! (cli/parse-opts (or *command-line-args* args))))
