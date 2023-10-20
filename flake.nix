@@ -45,5 +45,6 @@
           ];
         };
       };
+      nixosModules.solisplit = import ./module/solisplit.nix;
     };
 }

@@ -9,6 +9,7 @@
     nixosConfigurations.example = nixpkgs.lib.nixosSystem {
       modules = [
         ({config, ...}: {
+          imports = [solisplit.nixosModules.solisplit];
           nixpkgs.overlays = [solisplit.overlays.default];
           services.solisplit.enable = true;
           services.caddy = {
