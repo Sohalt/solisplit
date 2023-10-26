@@ -2,7 +2,7 @@
 
 Solisplit is an application to share costs in a more solidaric way.
 
-See [about](./how-it-works.md) for an explanation on how it works.
+See [about](./resources/about.md) for an explanation on how it works.
 
 ## Hosted deployment
 
