@@ -78,7 +78,7 @@
       [:div.flex.flex-row.mb-2
        (label left "name" "name")
        (text-field right "name")]]
-     (button {:class ["bg-blue-600" "text-white"]} "create")]))
+     (button {:class ["bg-teal-800" "text-white"]} "create")]))
 
 (defn redirect [target]
   {:status 302
@@ -116,7 +116,7 @@
     (redirect-to-share share)))
 
 (defn header []
-  [:h1.bg-blue-600.text-white.text-center.text-4xl.p-2 [:a {:href "/"} "Solisplit"]])
+  [:h1.bg-teal-800.text-white.text-center.text-4xl.p-2 [:a {:href "/"} "Solisplit"]])
 
 (defmacro page [& body]
   `(page/html5
@@ -156,7 +156,7 @@
         [:div.flex.flex-row.mb-2 {:class (if bid ["bg-green-200" "submitted"] [])}
          (label left id name)
          (currency-input right id) #_(when bid [:span.submitted "(already submitted)"])])
-      (button {:class ["mb-2" "bg-blue-600" "text-white"]} "submit my contribution")]
+      (button {:class ["mb-2" "bg-teal-800" "text-white"]} "submit my contribution")]
      [:form.flex.flex-col.max-w-md.font-medium.font-sans {:method "get"
              :action "check"}
       (button (let [disabled? (not (everyone-submitted-bid? share))]
@@ -164,7 +164,7 @@
                  :disabled disabled?
                  :class (if disabled?
                           ["bg-gray-200"]
-                          ["bg-blue-600" "text-white"])})
+                          ["bg-teal-800" "text-white"])})
               "check if goal is reached")]]))
 
 (defn not-found-response []
