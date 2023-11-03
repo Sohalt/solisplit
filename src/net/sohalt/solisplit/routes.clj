@@ -118,6 +118,7 @@
   `(page/html5
     (page/include-js "js/main.js")
     (page/include-js "https://cdn.tailwindcss.com")
+    [:h1.bg-green-300.text-center.text-4xl.p-2 [:a {:href "/"} "Solisplit"]]
     [:div.w-full.flex.flex-row.justify-center.bg-grey-100
      [:div.max-w-lg.align-self-center.drop-shadow.bg-white.rounded-b
       ~@body]]))
