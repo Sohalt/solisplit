@@ -263,15 +263,23 @@
           [:p "not everyone has submitted a bid yet"])))
       (not-found-response))))
 
+(defn home [req]
+  (html-response (page
+                  (about/project-description)
+                  [:div.flex.justify-center
+                   [:a.rounded-lg.border.p-2.bg-teal-800.text-white {:href "/share/"} "Split expense"]])))
+
 (def app (rr/ring-handler
           (rr/router
            [["/healthcheck" {:get handle-healthcheck}]
-            ["/" {:get create-project-form
+            ["/" {:get home}]
+            ["/share"
+             ["/" {:get create-project-form
                   :post handle-create-share}]
-            ["/share/:share-id"
-             ["/" {:get handle-view-share
+             ["/:share-id"
+              ["/" {:get handle-view-share
                    :post handle-update-share}]
-             ["/check" {:get handle-check}]]])
+              ["/check" {:get handle-check}]]]])
           (rr/create-resource-handler {:path "/"})
           {:middleware [params/wrap-params
                         ct/wrap-content-type]}))
