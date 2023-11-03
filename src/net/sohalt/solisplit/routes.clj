@@ -55,7 +55,7 @@
   ([name]
    (text-area name nil))
   ([name value]
-   [:input {:type "textarea", :name name, :id name, :placeholder name, :value value}]))
+   [:textarea {:name name, :id name, :placeholder name, :value value}]))
 
 (defelem button [text]
   [:input.rounded-lg.outline.p-2.m-5 {:type "submit" :value text}])
