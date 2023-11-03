@@ -77,7 +77,7 @@
      [:div#names
       [:div.flex.flex-row.mb-2
        (label left "name" "name")
-       (text-field right "name")]]
+       (text-field (merge right {:required true}) "name")]]
      (button {:class ["bg-teal-800" "text-white"]} "create")]))
 
 (defn redirect [target]

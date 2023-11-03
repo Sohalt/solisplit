@@ -4,6 +4,7 @@ window.onload = () =>{
   let input = row.querySelector("input");
   input.addEventListener("input",onChange);
   let rowTemplate = row.cloneNode(true);
+  rowTemplate.querySelector("input").removeAttribute("required");
 
   function addRow() {
     let row = rowTemplate.cloneNode(true);
