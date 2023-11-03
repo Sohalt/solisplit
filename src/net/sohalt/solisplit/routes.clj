@@ -72,7 +72,7 @@
       (text-area right "description")]
      [:div.flex.flex-row
       (label left "total" "total")
-      (currency-input right "total" "total")]
+      (currency-input (merge right {:required true}) "total" "total")]
      [:div#names
       [:div.flex.flex-row
        (label left "name" "name")
