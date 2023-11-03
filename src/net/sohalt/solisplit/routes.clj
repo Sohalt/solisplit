@@ -22,8 +22,10 @@
 (defn parse-currency [s]
   (parse-double s))
 
+(def currency-symbol "€")
+
 (defn format-currency [x]
-  (format "%.2f" (double x)))
+  (format "%.2f%s" (double x) currency-symbol))
 
 (comment
   (format-currency 0)
