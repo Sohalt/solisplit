@@ -63,7 +63,7 @@
 (defn create-share-form []
   (let [left {:class ["p-2" "flex-1"]}
         right {:class ["p-2" "flex-1" "outline-dotted"]}]
-    [:form.flex.flex-col.max-w-md.font-medium.font-sans.bg-blue-200.p-5 {:method "post"}
+    [:form.flex.flex-col.max-w-md.font-medium.font-sans.p-5 {:method "post"}
      [:div.flex.flex-row
       (label left "title" "title")
       (text-field right "title")]
@@ -116,7 +116,9 @@
   `(page/html5
     (page/include-js "js/main.js")
     (page/include-js "https://cdn.tailwindcss.com")
-    ~@body))
+    [:div.w-full.flex.flex-row.justify-center.bg-grey-100
+     [:div.max-w-lg.align-self-center.drop-shadow.bg-white.rounded-b
+      ~@body]]))
 
 (defn html-response [body]
   {:status 200
@@ -140,7 +142,7 @@
     [:div
      [:p "total: " (format-currency total) (str " (" (format-currency (/ total (count people))) " per person, when splitting equally)")]
      [:p "find your name and enter the maximum you'd be willing to contribute (leave other fields blank)"]
-     [:form.flex.flex-col.max-w-md.font-medium.font-sans.bg-blue-200.p-5 {:method "post"}
+     [:form.flex.flex-col.max-w-md.font-medium.font-sans.p-5 {:method "post"}
       (for [{:keys [id name bid]} (vals people)]
         [:div.flex.flex-row {:class (if bid ["bg-green-200" "submitted"] [])}
          (label left id name)
@@ -228,7 +230,7 @@
   (render-distribution share2))
 
 (defn render-distribution [{:as share :keys [people]}]
-  (into [:div.flex.flex-col.max-w-md.font-medium.font-sans.bg-blue-200.p-5
+  (into [:div.flex.flex-col.max-w-md.font-medium.font-sans.p-5
          [:p "Here is what everyone should pay:"]]
         (for [[id contribution] (compute-distribution share)]
           (let [name (get-in share [:people id :name])]
@@ -244,11 +246,13 @@
 (defn handle-check [{:keys [path-params]}]
   (let [id (parse-uuid (:share-id path-params))]
     (if-let [{:as share :keys [people]} (@!shares id)]
-      (if (everyone-submitted-bid? share)
-        (if (goal-reached? share)
-          (html-response (page (render-distribution share)))
-          (html-response (page (render-not-reached share))))
-        (html-response "not everyone has submitted a bid yet"))
+      (html-response
+       (page
+        (if (everyone-submitted-bid? share)
+          (if (goal-reached? share)
+            (render-distribution share)
+            (render-not-reached share))
+          [:p "not everyone has submitted a bid yet"])))
       (not-found-response))))
 
 (def app (rr/ring-handler
