@@ -146,26 +146,24 @@
   (every? :bid (vals people)))
 
 (defn contribution-form [{:as share :keys [id total people]}]
-  (let [left {:class ["p-2" "flex-1"]}
-        right {:class ["p-2" "flex-1" "border-2" "border-dotted"]}]
-    [:div
-     [:p "total: " (format-currency total) (str " (" (format-currency (/ total (count people))) " per person, when splitting equally)")]
-     [:p "find your name and enter the maximum you'd be willing to contribute (leave other fields blank)"]
-     [:form.flex.flex-col.max-w-md.font-medium.font-sans {:method "post"}
-      (for [{:keys [id name bid]} (vals people)]
-        [:div.flex.flex-row.mb-2
-         (label left id (str name (when bid " (already submitted)")))
-         (currency-input right id) #_(when bid [:span.submitted "(already submitted)"])])
-      (button {:class ["mb-2" "bg-teal-800" "text-white"]} "submit my contribution")]
-     [:form.flex.flex-col.max-w-md.font-medium.font-sans {:method "get"
-             :action "check"}
-      (button (let [disabled? (not (everyone-submitted-bid? share))]
-                {:id "check"
-                 :disabled disabled?
-                 :class (if disabled?
-                          ["bg-gray-200"]
-                          ["bg-teal-800" "text-white"])})
-              "check if goal is reached")]]))
+  [:div
+   [:p "total: " (format-currency total) (str " (" (format-currency (/ total (count people))) " per person, when splitting equally)")]
+   [:p "find your name and enter the maximum you'd be willing to contribute (leave other fields blank)"]
+   [:form.flex.flex-col.max-w-md.font-medium.font-sans {:method "post"}
+    (for [{:keys [id name bid]} (vals people)]
+      [:div.flex.flex-row.mb-2
+       [:label {:class ["p-2" "flex-1"] :for id} name (when bid [:span.text-xs.text-gray.ml-1 "(already submitted)"])]
+       (currency-input {:class ["p-2" "flex-1" "border-2" "border-dotted"]} id)])
+    (button {:class ["mb-2" "bg-teal-800" "text-white"]} "submit my contribution")]
+   [:form.flex.flex-col.max-w-md.font-medium.font-sans {:method "get"
+                                                        :action "check"}
+    (button (let [disabled? (not (everyone-submitted-bid? share))]
+              {:id "check"
+               :disabled disabled?
+               :class (if disabled?
+                        ["bg-gray-200"]
+                        ["bg-teal-800" "text-white"])})
+            "check if goal is reached")]])
 
 (defn not-found-response []
   {:status 404
