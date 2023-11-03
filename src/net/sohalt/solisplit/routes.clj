@@ -5,7 +5,8 @@
    [reitit.ring :as rr]
    [ring.middleware.params :as params]
    [ring.middleware.content-type :as ct]
-   [clojure.string :as str]))
+   [clojure.string :as str]
+   [net.sohalt.solisplit.about :as about]))
 
 (defonce !shares (atom {}))
 
@@ -134,6 +135,7 @@
 (defn create-project-form [req]
   (html-response
    (page
+    (about/project-description)
     (create-share-form))))
 
 (defn everyone-submitted-bid? [{:keys [people]}]
