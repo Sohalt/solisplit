@@ -226,10 +226,12 @@
   (render-distribution share2))
 
 (defn render-distribution [{:as share :keys [people]}]
-  (into [:div]
+  (into [:div.flex.flex-col.max-w-md.font-medium.font-sans.bg-blue-200.p-5
+         [:p "Here is what everyone should pay:"]]
         (for [[id contribution] (compute-distribution share)]
           (let [name (get-in share [:people id :name])]
-            [:div [:span name] [:span (format-currency contribution)]]))))
+            [:div.flex.flex-row.pt-2
+             [:span.flex-1 name] [:span.flex-1 (format-currency contribution)]]))))
 
 (defn render-not-reached [{:as share :keys [total people]}]
   (let [tc (total-committed share)
