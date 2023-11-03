@@ -120,7 +120,7 @@
 
 (defmacro page [& body]
   `(page/html5
-    (page/include-js "js/main.js")
+    (page/include-js "/js/main.js")
     (page/include-js "https://cdn.tailwindcss.com")
     (header)
     [:div.w-full.flex.flex-row.justify-center.bg-grey-100
@@ -138,8 +138,7 @@
 (defn create-project-form [req]
   (html-response
    (page
-    [:div.text-sm
-     (about/project-description)]
+    [:div.text-sm]
     (create-share-form))))
 
 (defn everyone-submitted-bid? [{:keys [people]}]
