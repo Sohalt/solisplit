@@ -53,6 +53,11 @@
       "hash": "sha256-XBwijxopsG0KfQNJD15k+vcTo8YWcpi6Fxz/wzz57Rg="
     },
     {
+      "mvn-path": "borkdude/edamame/1.0.16/edamame-1.0.16.pom",
+      "mvn-repo": "https://repo.clojars.org/",
+      "hash": "sha256-fnSjYI2xlPLzlX8Ci1NGRhTzBN8gIDkLsHPuP6EI1Ls="
+    },
+    {
       "mvn-path": "borkdude/edamame/1.3.23/edamame-1.3.23.jar",
       "mvn-repo": "https://repo.clojars.org/",
       "hash": "sha256-nm6BmZ66C/z3D61MlxA1TaNV37nSQAwepLpGK9Tv9VA="
@@ -435,14 +440,14 @@
       "hash": "sha256-J4FWrDxfoVPDI8oQGwJlyoTmBjvGgPEXs3UQ37qVpzg="
     },
     {
-      "mvn-path": "metosin/malli/0.13.0/malli-0.13.0.jar",
+      "mvn-path": "metosin/malli/0.12.0/malli-0.12.0.jar",
       "mvn-repo": "https://repo.clojars.org/",
-      "hash": "sha256-vzVJ7KKTtHBDFPqZIIVjh5h63qPcCTA4J7JYykxLWG0="
+      "hash": "sha256-Lzrin8v1SZgNJ5iuokym3gun4YsBj8UobOINeN4FxyY="
     },
     {
-      "mvn-path": "metosin/malli/0.13.0/malli-0.13.0.pom",
+      "mvn-path": "metosin/malli/0.12.0/malli-0.12.0.pom",
       "mvn-repo": "https://repo.clojars.org/",
-      "hash": "sha256-SEhWEbKw+mt8Kh4oIL5mGSR+/kAiuAMOn3HZcK/ees8="
+      "hash": "sha256-Co8/1bBvIr7vb9PVbDsKrP+8wwlHYvkUxTJy4JODLOs="
     },
     {
       "mvn-path": "metosin/muuntaja/0.6.8/muuntaja-0.6.8.jar",
@@ -903,6 +908,11 @@
       "mvn-path": "org/clojure/tools.analyzer/1.1.0/tools.analyzer-1.1.0.pom",
       "mvn-repo": "https://repo1.maven.org/maven2/",
       "hash": "sha256-NyBxL7knYaNclNDuQV1r8VhB70afBzZGd2h1553JtwY="
+    },
+    {
+      "mvn-path": "org/clojure/tools.reader/1.3.2/tools.reader-1.3.2.pom",
+      "mvn-repo": "https://repo1.maven.org/maven2/",
+      "hash": "sha256-sc3Czi6cUhEEfa7M0kuo1bE2yOmYDDiZ6k4rovDZ0dg="
     },
     {
       "mvn-path": "org/clojure/tools.reader/1.3.4/tools.reader-1.3.4.jar",
