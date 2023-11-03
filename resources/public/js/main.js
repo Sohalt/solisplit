@@ -1,22 +1,19 @@
 window.onload = () =>{
-let names = document.getElementById("names");
-function addRow() {
-  let row = document.createElement("div");
-  row.id = "foo";
-  let label = document.createElement("label");
-  label.innerText = "name";
-  let input = document.createElement("input");
-  input.type = "text";
-  input.name = "name";
-  input.placeholder = "name";
-  row.appendChild(label);
-  row.appendChild(input);
+  let names = document.getElementById("names");
+  let row = names.children[0];
+  let input = row.querySelector("input");
   input.addEventListener("input",onChange);
-  names.appendChild(row)
-}
-function onChange(e){
-  e.target.removeEventListener("input", onChange);
-  addRow();
-}
-addRow();
+  let rowTemplate = row.cloneNode(true);
+
+  function addRow() {
+    let row = rowTemplate.cloneNode(true);
+    let input = row.querySelector("input");
+    input.addEventListener("input",onChange);
+    names.appendChild(row)
+  }
+
+  function onChange(e){
+    e.target.removeEventListener("input", onChange);
+    addRow();
+  }
 };

@@ -1,6 +1,6 @@
 (ns net.sohalt.solisplit.routes
   (:require
-   [hiccup.form :as form]
+   [hiccup.def :refer [defelem]]
    [hiccup.page :as page]
    [reitit.ring :as rr]
    [ring.middleware.params :as params]
@@ -29,7 +29,7 @@
   (let [x (double (/ (rand-int 1000) 100))]
     (= x (parse-currency (format-currency x)))))
 
-(defn currency-input
+(defelem currency-input
   ([name]
    (currency-input name nil))
   ([name placeholder]
@@ -39,31 +39,42 @@
             :step "any"
             :min 0}]))
 
-(defn label [name text]
+(defelem label [name text]
   [:label {:for name} text])
 
-(defn text-field
+(defelem text-field
   ([name]
    (text-field name nil))
   ([name value]
    [:input {:type "text", :name name, :id name, :placeholder name, :value value}]))
 
-(defn text-area
+(defelem text-area
   ([name]
    (text-area name nil))
   ([name value]
    [:input {:type "textarea", :name name, :id name, :placeholder name, :value value}]))
 
+(defelem button [text]
+  [:input.rounded-lg.outline.p-2.m-5 {:type "submit" :value text}])
+
 (defn create-share-form []
-  [:form.grid.grid-cols-2.justify-items-center.max-w-md.font-medium.font-sans {:method "post"}
-   (label "title" "title")
-   (text-field "title")
-   (label "description" "description")
-   (text-area "description")
-   (label "total" "total")
-   (currency-input "total" "total")
-   [:div#names.col-span-2]
-   [:input.bg-green-200.rounded-lg.border.w-full.shadow-inner.transition-all {:type "submit" :value "create"}]])
+  (let [left {:class ["p-2" "flex-1"]}
+        right {:class ["p-2" "flex-1" "outline-dotted"]}]
+    [:form.flex.flex-col.max-w-md.font-medium.font-sans.bg-blue-200.p-5 {:method "post"}
+     [:div.flex.flex-row
+      (label left "title" "title")
+      (text-field right "title")]
+     [:div.flex.flex-row
+      (label left "description" "description")
+      (text-area right "description")]
+     [:div.flex.flex-row
+      (label left "total" "total")
+      (currency-input right "total" "total")]
+     [:div#names
+      [:div.flex.flex-row
+       (label left "name" "name")
+       (text-field right "name")]]
+     (button "create")]))
 
 (defn redirect [target]
   {:status 302
@@ -120,19 +131,25 @@
 (defn everyone-submitted-bid? [{:keys [people]}]
   (every? :bid (vals people)))
 
-(defn render-share [{:as share :keys [id total people]}]
-  [:div
-   [:p "total: " (format-currency total) (str " (" (format-currency (/ total (count people))) " per person, when splitting equally)")]
-   [:p "find your name and enter the maximum you'd be willing to contribute (leave other fields blank)"]
-   [:form {:method "post"}
-    (for [{:keys [id name bid]} (vals people)]
-      [:div {:class (if bid ["bg-green-200" "submitted"] [])} (label id name) (currency-input id) #_(when bid [:span.submitted "(already submitted)"])])
-    [:input {:type "submit" :value "submit my contribution"}]]
-   [:form {:method "get"
-           :action "check"}
-    [:input#check {:type "submit"
-                   :value "check if goal is reached"
-                   :disabled (not (everyone-submitted-bid? share))}]]])
+(defn contribution-form [{:as share :keys [id total people]}]
+  (let [left {:class ["p-2" "flex-1"]}
+        right {:class ["p-2" "flex-1" "outline-dotted"]}]
+    [:div
+     [:p "total: " (format-currency total) (str " (" (format-currency (/ total (count people))) " per person, when splitting equally)")]
+     [:p "find your name and enter the maximum you'd be willing to contribute (leave other fields blank)"]
+     [:form.flex.flex-col.max-w-md.font-medium.font-sans.bg-blue-200.p-5 {:method "post"}
+      (for [{:keys [id name bid]} (vals people)]
+        [:div.flex.flex-row {:class (if bid ["bg-green-200" "submitted"] [])}
+         (label left id name)
+         (currency-input right id) #_(when bid [:span.submitted "(already submitted)"])])
+      (button "submit my contribution")]
+     [:form {:method "get"
+             :action "check"}
+      (button (let [disabled? (not (everyone-submitted-bid? share))]
+                {:id "check"
+                 :disabled disabled?
+                 :class (when disabled? ["bg-gray-200"])})
+              "check if goal is reached")]]))
 
 (defn not-found-response []
   {:status 404
@@ -141,7 +158,7 @@
 (defn handle-view-share [{:keys [path-params]}]
   (let [id (parse-uuid (:share-id path-params))]
     (if-let [share (@!shares id)]
-      (html-response (page (render-share share)))
+      (html-response (page (contribution-form share)))
       (not-found-response))))
 
 (defn deep-merge [a b]
