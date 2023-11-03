@@ -78,7 +78,7 @@
       [:div.flex.flex-row.mb-2
        (label left "name" "name")
        (text-field right "name")]]
-     (button "create")]))
+     (button {:class ["bg-blue-600" "text-white"]} "create")]))
 
 (defn redirect [target]
   {:status 302
@@ -115,11 +115,14 @@
     (swap! !shares add-share share)
     (redirect-to-share share)))
 
+(defn header []
+  [:h1.bg-blue-600.text-white.text-center.text-4xl.p-2 [:a {:href "/"} "Solisplit"]])
+
 (defmacro page [& body]
   `(page/html5
     (page/include-js "js/main.js")
     (page/include-js "https://cdn.tailwindcss.com")
-    [:h1.bg-green-300.text-center.text-4xl.p-2 [:a {:href "/"} "Solisplit"]]
+    (header)
     [:div.w-full.flex.flex-row.justify-center.bg-grey-100
      [:div.max-w-lg.align-self-center.drop-shadow.bg-white.rounded-b.p-5
       ~@body]]))
