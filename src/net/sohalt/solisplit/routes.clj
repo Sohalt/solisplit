@@ -91,7 +91,9 @@
     {:id id
      :name name}))
 
-(defn create-share [{:as share :keys [names]}]
+(defn create-share [{:as share :keys [total names]}]
+  (assert (currency? total) "A project needs a total")
+  (assert (seq names) "A project needs at least one person")
   (let [id (random-uuid)]
     (-> share
         (dissoc :names)
