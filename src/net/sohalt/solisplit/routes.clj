@@ -58,12 +58,12 @@
    [:textarea {:name name, :id name, :placeholder name, :value value}]))
 
 (defelem button [text]
-  [:input.rounded-lg.outline.p-2.m-5 {:type "submit" :value text}])
+  [:input.rounded-lg.border.p-2.m-5 {:type "submit" :value text}])
 
 (defn create-share-form []
   (let [left {:class ["p-2" "flex-1"]}
-        right {:class ["p-2" "flex-1" "outline-dotted"]}]
-    [:form.flex.flex-col.max-w-md.font-medium.font-sans.p-5 {:method "post"}
+        right {:class ["mb-1" "p-1" "flex-1" "rounded" "border-2" "border-dotted"]}]
+    [:form.flex.flex-col.max-w-md.font-sans.p-5 {:method "post"}
      [:div.flex.flex-row
       (label left "title" "title")
       (text-field right "title")]
@@ -141,7 +141,7 @@
 
 (defn contribution-form [{:as share :keys [id total people]}]
   (let [left {:class ["p-2" "flex-1"]}
-        right {:class ["p-2" "flex-1" "outline-dotted"]}]
+        right {:class ["p-2" "flex-1" "border-2" "border-dotted"]}]
     [:div
      [:p "total: " (format-currency total) (str " (" (format-currency (/ total (count people))) " per person, when splitting equally)")]
      [:p "find your name and enter the maximum you'd be willing to contribute (leave other fields blank)"]
