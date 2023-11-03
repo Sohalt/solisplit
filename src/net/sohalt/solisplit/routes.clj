@@ -59,23 +59,23 @@
    [:textarea {:name name, :id name, :placeholder name, :value value}]))
 
 (defelem button [text]
-  [:input.rounded-lg.border.p-2.m-5 {:type "submit" :value text}])
+  [:input.rounded-lg.border.p-2 {:type "submit" :value text}])
 
 (defn create-share-form []
   (let [left {:class ["p-2" "flex-1"]}
         right {:class ["mb-1" "p-1" "flex-1" "rounded" "border-2" "border-dotted"]}]
-    [:form.flex.flex-col.max-w-md.font-sans.p-5 {:method "post"}
-     [:div.flex.flex-row
+    [:form.flex.flex-col.max-w-md.font-sans {:method "post"}
+     [:div.flex.flex-row.mb-2
       (label left "title" "title")
       (text-field right "title")]
-     [:div.flex.flex-row
+     [:div.flex.flex-row.mb-2
       (label left "description" "description")
       (text-area right "description")]
-     [:div.flex.flex-row
+     [:div.flex.flex-row.mb-2
       (label left "total" "total")
       (currency-input (merge right {:required true}) "total" "total")]
      [:div#names
-      [:div.flex.flex-row
+      [:div.flex.flex-row.mb-2
        (label left "name" "name")
        (text-field right "name")]]
      (button "create")]))
@@ -121,7 +121,7 @@
     (page/include-js "https://cdn.tailwindcss.com")
     [:h1.bg-green-300.text-center.text-4xl.p-2 [:a {:href "/"} "Solisplit"]]
     [:div.w-full.flex.flex-row.justify-center.bg-grey-100
-     [:div.max-w-lg.align-self-center.drop-shadow.bg-white.rounded-b
+     [:div.max-w-lg.align-self-center.drop-shadow.bg-white.rounded-b.p-5
       ~@body]]))
 
 (defn html-response [body]
@@ -135,7 +135,8 @@
 (defn create-project-form [req]
   (html-response
    (page
-    (about/project-description)
+    [:div.text-sm
+     (about/project-description)]
     (create-share-form))))
 
 (defn everyone-submitted-bid? [{:keys [people]}]
@@ -147,18 +148,20 @@
     [:div
      [:p "total: " (format-currency total) (str " (" (format-currency (/ total (count people))) " per person, when splitting equally)")]
      [:p "find your name and enter the maximum you'd be willing to contribute (leave other fields blank)"]
-     [:form.flex.flex-col.max-w-md.font-medium.font-sans.p-5 {:method "post"}
+     [:form.flex.flex-col.max-w-md.font-medium.font-sans {:method "post"}
       (for [{:keys [id name bid]} (vals people)]
-        [:div.flex.flex-row {:class (if bid ["bg-green-200" "submitted"] [])}
+        [:div.flex.flex-row.mb-2 {:class (if bid ["bg-green-200" "submitted"] [])}
          (label left id name)
          (currency-input right id) #_(when bid [:span.submitted "(already submitted)"])])
-      (button "submit my contribution")]
-     [:form {:method "get"
+      (button {:class ["mb-2" "bg-blue-600" "text-white"]} "submit my contribution")]
+     [:form.flex.flex-col.max-w-md.font-medium.font-sans {:method "get"
              :action "check"}
       (button (let [disabled? (not (everyone-submitted-bid? share))]
                 {:id "check"
                  :disabled disabled?
-                 :class (when disabled? ["bg-gray-200"])})
+                 :class (if disabled?
+                          ["bg-gray-200"]
+                          ["bg-blue-600" "text-white"])})
               "check if goal is reached")]]))
 
 (defn not-found-response []
@@ -235,11 +238,11 @@
   (render-distribution share2))
 
 (defn render-distribution [{:as share :keys [people]}]
-  (into [:div.flex.flex-col.max-w-md.font-medium.font-sans.p-5
+  (into [:div.flex.flex-col.max-w-md.font-medium.font-sans
          [:p "Here is what everyone should pay:"]]
         (for [[id contribution] (compute-distribution share)]
           (let [name (get-in share [:people id :name])]
-            [:div.flex.flex-row.pt-2
+            [:div.flex.flex-row.mb-2
              [:span.flex-1 name] [:span.flex-1 (format-currency contribution)]]))))
 
 (defn render-not-reached [{:as share :keys [total people]}]
