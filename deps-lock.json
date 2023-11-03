@@ -365,14 +365,14 @@
       "hash": "sha256-HMYRGQ7+N0lFIJZ6bTayknJ5kFXkPsQV6XZVHJGKEso="
     },
     {
-      "mvn-path": "io/github/nextjournal/markdown/0.5.144/markdown-0.5.144.jar",
+      "mvn-path": "io/github/nextjournal/markdown/0.5.146/markdown-0.5.146.jar",
       "mvn-repo": "https://repo.clojars.org/",
-      "hash": "sha256-7NdhDQ8BBp4ZzavFaCZzLWs+eFhniseAky/eK4YTm1M="
+      "hash": "sha256-s8GE3caUgO4FnjQIZN4/sfBFDFxe6cbGILWnCnOf3po="
     },
     {
-      "mvn-path": "io/github/nextjournal/markdown/0.5.144/markdown-0.5.144.pom",
+      "mvn-path": "io/github/nextjournal/markdown/0.5.146/markdown-0.5.146.pom",
       "mvn-repo": "https://repo.clojars.org/",
-      "hash": "sha256-ITekAqpgEX+XyNV9pK++KCnJRQVtz6rcx7Oy24Xo3pg="
+      "hash": "sha256-C/26rL7VyLTBl8vEuNk8kSEtiCsKJsZJiL81mz/k+7Y="
     },
     {
       "mvn-path": "io/methvin/directory-watcher/0.17.3/directory-watcher-0.17.3.jar",
