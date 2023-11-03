@@ -8,6 +8,7 @@ function addRow() {
   let input = document.createElement("input");
   input.type = "text";
   input.name = "name";
+  input.placeholder = "name";
   row.appendChild(label);
   row.appendChild(input);
   input.addEventListener("input",onChange);

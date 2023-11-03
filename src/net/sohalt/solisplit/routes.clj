@@ -29,18 +29,41 @@
   (let [x (double (/ (rand-int 1000) 100))]
     (= x (parse-currency (format-currency x)))))
 
-(defn currency-input [name]
-  [:input {:type "number"
-           :name name
-           :step "any"
-           :min 0}])
+(defn currency-input
+  ([name]
+   (currency-input name nil))
+  ([name placeholder]
+   [:input {:type "number"
+            :name name
+            :placeholder placeholder
+            :step "any"
+            :min 0}]))
+
+(defn label [name text]
+  [:label {:for name} text])
+
+(defn text-field
+  ([name]
+   (text-field name nil))
+  ([name value]
+   [:input {:type "text", :name name, :id name, :placeholder name, :value value}]))
+
+(defn text-area
+  ([name]
+   (text-area name nil))
+  ([name value]
+   [:input {:type "textarea", :name name, :id name, :placeholder name, :value value}]))
 
 (defn create-share-form []
-  [:form {:method "post"}
-   (form/label "total" "total")
-   (currency-input "total")
-   [:div#names]
-   [:input {:type "submit" :value "create"}]])
+  [:form.grid.grid-cols-2.justify-items-center.max-w-md.font-medium.font-sans {:method "post"}
+   (label "title" "title")
+   (text-field "title")
+   (label "description" "description")
+   (text-area "description")
+   (label "total" "total")
+   (currency-input "total" "total")
+   [:div#names.col-span-2]
+   [:input.bg-green-200.rounded-lg.border.w-full.shadow-inner.transition-all {:type "submit" :value "create"}]])
 
 (defn redirect [target]
   {:status 302
@@ -54,20 +77,24 @@
     {:id id
      :name name}))
 
-(defn create-share [total names]
+(defn create-share [{:as share :keys [names]}]
   (let [id (random-uuid)]
-    {:id id
-     :total total
-     :people (into {} (map (fn [name]
-                             (let [{:as person :keys [id]} (create-person name)]
-                               [id person]))
-                           names))}))
+    (-> share
+        (dissoc :names)
+        (assoc :id id)
+        (assoc :people (into {} (map (fn [name]
+                                       (let [{:as person :keys [id]} (create-person name)]
+                                         [id person]))
+                                     names))))))
 
 (defn handle-create-share [{:as req :keys [form-params]}]
-  (let [{:strs [total name]} form-params
+  (let [{:strs [title description total name]} form-params
         total (parse-currency total)
         names (filter (comp not str/blank?) name)
-        {:as share :keys [id]} (create-share total names)]
+        share (create-share (cond-> {:total total
+                                     :names names}
+                              title (assoc :title title )
+                              description (assoc :description description )))]
     (swap! !shares add-share share)
     (redirect-to-share share)))
 
@@ -99,7 +126,7 @@
    [:p "find your name and enter the maximum you'd be willing to contribute (leave other fields blank)"]
    [:form {:method "post"}
     (for [{:keys [id name bid]} (vals people)]
-      [:div {:class (if bid ["bg-green-200" "submitted"] [])} (form/label id name) (currency-input id) #_(when bid [:span.submitted "(already submitted)"])])
+      [:div {:class (if bid ["bg-green-200" "submitted"] [])} (label id name) (currency-input id) #_(when bid [:span.submitted "(already submitted)"])])
     [:input {:type "submit" :value "submit my contribution"}]]
    [:form {:method "get"
            :action "check"}
