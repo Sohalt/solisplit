@@ -153,8 +153,8 @@
      [:p "find your name and enter the maximum you'd be willing to contribute (leave other fields blank)"]
      [:form.flex.flex-col.max-w-md.font-medium.font-sans {:method "post"}
       (for [{:keys [id name bid]} (vals people)]
-        [:div.flex.flex-row.mb-2 {:class (if bid ["bg-green-200" "submitted"] [])}
-         (label left id name)
+        [:div.flex.flex-row.mb-2
+         (label left id (str name (when bid " (already submitted)")))
          (currency-input right id) #_(when bid [:span.submitted "(already submitted)"])])
       (button {:class ["mb-2" "bg-teal-800" "text-white"]} "submit my contribution")]
      [:form.flex.flex-col.max-w-md.font-medium.font-sans {:method "get"
