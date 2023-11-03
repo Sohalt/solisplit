@@ -23,9 +23,10 @@
   (parse-double s))
 
 (defn format-currency [x]
-  (format "%.2f" x))
+  (format "%.2f" (double x)))
 
 (comment
+  (format-currency 0)
   (let [x (double (/ (rand-int 1000) 100))]
     (= x (parse-currency (format-currency x)))))
 
