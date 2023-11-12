@@ -10,7 +10,7 @@
 (defn start! [options]
   (if (and (some? @!server) (= :running (server/server-status @!server)))
     {:error "Server already running"}
-    (let [server (reset! !server (server/run-server #'routes/app (merge options {:legacy-return-value? false})))]
+    (let [server (reset! !server (server/run-server #'routes/dev-app (merge options {:legacy-return-value? false})))]
       (println (format "Started server on port %s" (server/server-port server)))
       server)))
 

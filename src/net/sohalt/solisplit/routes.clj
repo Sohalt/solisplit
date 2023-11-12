@@ -2,6 +2,7 @@
   (:require
    [hiccup.def :refer [defelem]]
    [hiccup.page :as page]
+   [reitit.core :as r]
    [reitit.ring :as rr]
    [ring.middleware.params :as params]
    [ring.middleware.content-type :as ct]
@@ -9,9 +10,17 @@
    [net.sohalt.solisplit.about :as about]))
 
 (defonce !shares (atom {}))
+(defonce !person->share (atom {}))
+
+(def server-address "http://localhost:8090")
+
+(defn person->share [person-id]
+  (let [share-id (@!person->share person-id)]
+    (@!shares share-id)))
 
 (comment
-  (reset! !shares {}))
+  (reset! !shares {})
+  (reset! !person->share {}))
 
 (defn add-share [shares {:as share :keys [id]}]
   (assoc shares id share))
@@ -42,6 +51,10 @@
             :placeholder placeholder
             :step "any"
             :min 0}]))
+
+(defelem link [to text]
+  [:a {:href to
+       :class ["underline"]} text])
 
 (defelem label [name text]
   [:label {:for name} text])
@@ -111,8 +124,10 @@
         share (create-share (cond-> {:total total
                                      :names names}
                               title (assoc :title title )
-                              description (assoc :description description )))]
+                              description (assoc :description description)))
+        people-ids (keys (:people share))]
     (swap! !shares add-share share)
+    (swap! !person->share merge (into {} (map (fn [person-id] [person-id (:id share)]) people-ids)))
     (redirect-to-share share)))
 
 (defn header []
@@ -168,10 +183,24 @@
   {:status 404
    :body "not found"})
 
-(defn handle-view-share [{:keys [path-params]}]
+(@!shares #uuid "8f2ab79f-2c80-41dd-8051-a2b8767cfe37" )
+
+(defn share-view [router {:as share :keys [title description total people]}]
+  [:div.flex.flex-col.max-w-md.font-medium.font-sans
+   (when title [:h2 title])
+   (when description [:p description])
+   [:span "total: " total]
+   [:div [:p "Share this link with the person"]
+    (for [{:keys [id bid name]} (vals people)]
+      [:div.flex-row.mb-2
+       [:span.p-2.flex-1 name (when bid [:span.text-sm "(submitted)"])]
+       [:span.p-2.flex-1 (let [person-link (str server-address (r/match->path (r/match-by-name router :person {:person-id (str id)})))]
+                           (link person-link person-link))]])]])
+
+(defn handle-view-share [{::r/keys [router] :keys [path-params]}]
   (let [id (parse-uuid (:share-id path-params))]
     (if-let [share (@!shares id)]
-      (html-response (page (contribution-form share)))
+      (html-response (page (share-view router share)))
       (not-found-response))))
 
 (defn deep-merge [a b]
@@ -263,23 +292,67 @@
           [:p "not everyone has submitted a bid yet"])))
       (not-found-response))))
 
+(defn render-contribution-form []
+  [:form {:method "post"}
+   [:p "How much would you be willing to contribute?"]
+   [:label {:for "bid"} "contribution"]
+   (currency-input "bid")
+   (button "submit")])
+
+(defn person-view [{:keys [path-params]}]
+  (let [person-id (parse-uuid (:person-id path-params))]
+    (if-let [share (person->share person-id)]
+      (html-response
+       (page
+        (if (everyone-submitted-bid? share)
+          (if (goal-reached? share)
+            [:p "You should pay " (format-currency ((compute-distribution share) person-id))]
+            (render-not-reached share))
+          (render-contribution-form))))
+      (not-found-response))))
+
+(defn handle-submit-contribution [{:as req :keys [path-params form-params]}]
+  (tap> req)
+  (let [person-id (parse-uuid (:person-id path-params))
+        share-id (@!person->share person-id)
+        bid (parse-currency (get form-params "bid"))]
+    (swap! !shares (fn [shares] (assoc-in shares [share-id :people person-id :bid] bid)))
+    (redirect (str "/contribute/" person-id))))
+
 (defn home [req]
   (html-response (page
                   (about/project-description)
                   [:div.flex.justify-center
                    [:a.rounded-lg.border.p-2.bg-teal-800.text-white {:href "/share/"} "Split expense"]])))
 
-(def app (rr/ring-handler
-          (rr/router
-           [["/healthcheck" {:get handle-healthcheck}]
-            ["/" {:get home}]
-            ["/share"
-             ["/" {:get create-project-form
-                  :post handle-create-share}]
-             ["/:share-id"
-              ["/" {:get handle-view-share
-                   :post handle-update-share}]
-              ["/check" {:get handle-check}]]]])
-          (rr/create-resource-handler {:path "/"})
-          {:middleware [params/wrap-params
-                        ct/wrap-content-type]}))
+
+(def share-id #uuid "0a6b6083-2f0c-400f-a943-5063f117cc04")
+(everyone-submitted-bid? (@!shares share-id))
+
+(defn routes []
+  [["/healthcheck" {:get handle-healthcheck}]
+   ["/" {:get home}]
+   ["/share"
+    ["/" {:get create-project-form
+          :post handle-create-share}]
+    ["/:share-id"
+     ["/" {:get handle-view-share
+           :post handle-update-share}]
+     ["/check" {:get handle-check}]]]
+   ["/contribute/:person-id" {:name :person
+                              :get person-view
+                              :post handle-submit-contribution}]])
+
+(def dev-router #(rr/router (routes)))
+(def prod-router (constantly (rr/router (routes))))
+
+(defn dev-app [req] ((rr/ring-handler
+                      (dev-router)
+                      (rr/create-resource-handler {:path "/"})
+                      {:middleware [params/wrap-params
+                                    ct/wrap-content-type]}) req))
+(def prod-app (rr/ring-handler
+               (prod-router)
+               (rr/create-resource-handler {:path "/"})
+               {:middleware [params/wrap-params
+                             ct/wrap-content-type]}))
