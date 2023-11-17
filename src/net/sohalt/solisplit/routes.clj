@@ -77,7 +77,7 @@
 (defn create-share-form []
   (let [left {:class ["p-2" "flex-1"]}
         right {:class ["mb-1" "p-1" "flex-1" "rounded" "border-2" "border-dotted"]}]
-    [:form.flex.flex-col.max-w-md.font-sans {:method "post"}
+    [:form.flex.flex-col.font-sans {:method "post"}
      [:div.flex.flex-row.mb-2
       (label left "title" "title")
       (text-field right "title")]
@@ -139,7 +139,7 @@
     (page/include-js "https://cdn.tailwindcss.com")
     (header)
     [:div.w-full.flex.flex-row.justify-center.bg-grey-100
-     [:div.max-w-lg.align-self-center.drop-shadow.bg-white.rounded-b.p-5
+     [:div.max-w-5xl.align-self-center.drop-shadow.bg-white.rounded-b.p-5
       ~@body]]))
 
 (defn html-response [body]
@@ -163,13 +163,13 @@
   [:div
    [:p "total: " (format-currency total) (str " (" (format-currency (/ total (count people))) " per person, when splitting equally)")]
    [:p "find your name and enter the maximum you'd be willing to contribute (leave other fields blank)"]
-   [:form.flex.flex-col.max-w-md.font-medium.font-sans {:method "post"}
+   [:form.flex.flex-col.font-medium.font-sans {:method "post"}
     (for [{:keys [id name bid]} (vals people)]
       [:div.flex.flex-row.mb-2
        [:label {:class ["p-2" "flex-1"] :for id} name (when bid [:span.text-xs.text-gray.ml-1 "(already submitted)"])]
        (currency-input {:class ["p-2" "flex-1" "border-2" "border-dotted"]} id)])
     (button {:class ["mb-2" "bg-teal-800" "text-white"]} "submit my contribution")]
-   [:form.flex.flex-col.max-w-md.font-medium.font-sans {:method "get"
+   [:form.flex.flex-col.font-medium.font-sans {:method "get"
                                                         :action "check"}
     (button (let [disabled? (not (everyone-submitted-bid? share))]
               {:id "check"
@@ -186,16 +186,19 @@
 (@!shares #uuid "8f2ab79f-2c80-41dd-8051-a2b8767cfe37" )
 
 (defn share-view [router {:as share :keys [title description total people]}]
-  [:div.flex.flex-col.max-w-md.font-medium.font-sans
+  [:div.flex.flex-col.font-medium.font-sans
    (when title [:h2 title])
    (when description [:p description])
    [:span "total: " total]
-   [:div [:p "Share this link with the person"]
-    (for [{:keys [id bid name]} (vals people)]
-      [:div.flex-row.mb-2
-       [:span.p-2.flex-1 name (when bid [:span.text-sm "(submitted)"])]
-       [:span.p-2.flex-1 (let [person-link (str server-address (r/match->path (r/match-by-name router :person {:person-id (str id)})))]
-                           (link person-link person-link))]])]])
+   [:p "Share this link with the person"]
+   (into []
+         (concat
+          [:div.grid.grid-cols-2]
+          (mapcat (fn [{:keys [id bid name]}]
+                    [[:div.p-2 name (when bid [:span.text-sm "(submitted)"])]
+                     [:div.p-2 (let [person-link (str server-address (r/match->path (r/match-by-name router :person {:person-id (str id)})))]
+                                 (link person-link person-link))]])
+                  (vals people))))])
 
 (defn handle-view-share [{::r/keys [router] :keys [path-params]}]
   (let [id (parse-uuid (:share-id path-params))]
@@ -267,7 +270,7 @@
   (render-distribution share2))
 
 (defn render-distribution [{:as share :keys [people]}]
-  (into [:div.flex.flex-col.max-w-md.font-medium.font-sans
+  (into [:div.flex.flex-col.font-medium.font-sans
          [:p "Here is what everyone should pay:"]]
         (for [[id contribution] (compute-distribution share)]
           (let [name (get-in share [:people id :name])]
