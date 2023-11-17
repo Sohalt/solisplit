@@ -292,9 +292,14 @@
           [:p "not everyone has submitted a bid yet"])))
       (not-found-response))))
 
-(defn render-contribution-form []
+(defn render-contribution-form [{:keys [name bid]} {:keys [title description total people]}]
   [:form {:method "post"}
+   [:p (format "Hello %s" name)]
+   [:p "total: " (format-currency total) (str " (" (format-currency (/ total (count people))) " per person, when splitting equally)")]
+   (when title [:h2 title])
+   (when description [:p description])
    [:p "How much would you be willing to contribute?"]
+   (when bid [:p "You have already submitted a value. If you want, you can submit the form again to update your contribution."])
    [:label {:for "bid"} "contribution"]
    (currency-input "bid")
    (button "submit")])
@@ -308,7 +313,7 @@
           (if (goal-reached? share)
             [:p "You should pay " (format-currency ((compute-distribution share) person-id))]
             (render-not-reached share))
-          (render-contribution-form))))
+          (render-contribution-form (get-in share [:people person-id]) share))))
       (not-found-response))))
 
 (defn handle-submit-contribution [{:as req :keys [path-params form-params]}]
