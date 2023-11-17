@@ -6,7 +6,7 @@ Solisplit is an application to share costs in a more solidaric way.
 
 1. You enter the total cost that you want to split.
 2. You enter the names of everyone who wants to share the cost.
-3. You get a link to a form where everyone can enter the maximum amount they would be willing to contribute to the shared expense. Share this link with all participants.
+3. Everyone gets a personalized link to a form where they can enter the maximum amount they would be willing to contribute to the shared expense.
 4. After everyone has entered their answer, you can check the result to see the actual share that everyone should pay:
   - if the sum of everyone's maximum contribution exceeds the total cost that you want to split, the total cost is divided among everyone, proportional to their answers. This means that everyone pays at most the amount they were comfortable with and the cost is split fairly, based on how much someone was willing to contribute.
   - if the sum of everyone's maximum contribution does not reach the total cost, the program cannot calculate a fair distribution and instead shows how much more money would be needed to reach the total cost. You can then start over from the beginning and hope that people will increase their maximum contribution or try reducing the total cost if your situation allows for it.
