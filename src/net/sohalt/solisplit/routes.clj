@@ -74,23 +74,29 @@
 (defelem button [text]
   [:input.rounded-lg.border.p-2 {:type "submit" :value text}])
 
+(defn form-row [left right]
+  [:div.flex.flex-col.mb-2.md:flex-row
+   left
+   right])
+
 (defn create-share-form []
   (let [left {:class ["p-2" "flex-1"]}
-        right {:class ["mb-1" "p-1" "flex-1" "rounded" "border-2" "border-dotted"]}]
+        right {:class ["p-2" "flex-1" "rounded" "border-2" "border-dotted"]}]
     [:form.flex.flex-col.font-sans {:method "post"}
-     [:div.flex.flex-row.mb-2
-      (label left "title" "title")
-      (text-field right "title")]
-     [:div.flex.flex-row.mb-2
+     (form-row
+      (label left "title" "What do you want to split the cost for?")
+      (text-field right "title"))
+     (form-row
       (label left "description" "description")
-      (text-area right "description")]
-     [:div.flex.flex-row.mb-2
-      (label left "total" "total")
-      (currency-input (merge right {:required true}) "total" "total")]
-     [:div#names
-      [:div.flex.flex-row.mb-2
-       (label left "name" "name")
-       (text-field (merge right {:required true}) "name")]]
+      (text-area right "description"))
+     (form-row
+      (label left "total" "What is the total cost that you want to split?")
+      (currency-input (merge right {:required true}) "total" "total"))
+     (form-row
+      [:p.p-2.flex-1 "What are the names of the people you want to split the expense with?"]
+      [:div#names.flex-1
+       (text-field {:class ["p-2" "w-full" "rounded" "border-2" "border-dotted"]
+                    :required true} "name")])
      (button {:class ["bg-teal-800" "text-white"]} "create")]))
 
 (defn redirect [target]
@@ -137,6 +143,8 @@
   `(page/html5
     (page/include-js "/js/main.js")
     (page/include-js "https://cdn.tailwindcss.com")
+    [:meta {:name "viewport"
+            :content "width=device-width, initial-scale=1"}]
     (header)
     [:div.w-full.flex.flex-row.justify-center.bg-grey-100
      [:div.max-w-5xl.align-self-center.drop-shadow.bg-white.rounded-b.p-5
@@ -182,8 +190,6 @@
 (defn not-found-response []
   {:status 404
    :body "not found"})
-
-(@!shares #uuid "8f2ab79f-2c80-41dd-8051-a2b8767cfe37" )
 
 (defn share-view [router {:as share :keys [title description total people]}]
   [:div.flex.flex-col.font-medium.font-sans
