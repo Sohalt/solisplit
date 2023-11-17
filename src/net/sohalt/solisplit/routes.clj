@@ -95,8 +95,8 @@
      (form-row
       [:p.p-2.flex-1 "What are the names of the people you want to split the expense with?"]
       [:div#names.flex-1
-       (text-field {:class ["p-2" "w-full" "rounded" "border-2" "border-dotted"]
-                    :required true} "name")])
+       [:div.mb-2 (text-field {:class ["p-2" "w-full" "rounded" "border-2" "border-dotted"]
+                          :required true} "name")]])
      (button {:class ["bg-teal-800" "text-white"]} "create")]))
 
 (defn redirect [target]
