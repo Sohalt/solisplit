@@ -12,7 +12,7 @@
 (defonce !shares (atom {}))
 (defonce !person->share (atom {}))
 
-(def server-address "http://localhost:8090")
+(def server-address (or (System/getenv "SERVER_ADDRESS") "http://localhost:8090"))
 
 (defn person->share [person-id]
   (let [share-id (@!person->share person-id)]
@@ -289,7 +289,7 @@
   (let [tc (total-committed share)
         missing (- total tc)
         missing-per-person (/ missing (count people))]
-    [:div [:p (str "We are " (format-currency missing) " short (" (format-currency missing-per-person) ") per person, when splitting equally.")]]))
+    [:div [:p (str "We are " (format-currency missing) " short (" (format-currency missing-per-person) " per person, when splitting equally).")]]))
 
 (defn handle-check [{:keys [path-params]}]
   (let [id (parse-uuid (:share-id path-params))]
@@ -325,13 +325,12 @@
        (page
         (if (everyone-submitted-bid? share)
           (if (goal-reached? share)
-            [:p "You should pay " (format-currency ((compute-distribution share) person-id))]
+            [:p (str "Your share is " (format-currency ((compute-distribution share) person-id)) ".")]
             (render-not-reached share))
           (render-contribution-form (get-in share [:people person-id]) share))))
       (not-found-response))))
 
 (defn handle-submit-contribution [{:as req :keys [path-params form-params]}]
-  (tap> req)
   (let [person-id (parse-uuid (:person-id path-params))
         share-id (@!person->share person-id)
         bid (parse-currency (get form-params "bid"))]
@@ -344,9 +343,6 @@
                   [:div.flex.justify-center
                    [:a.rounded-lg.border.p-2.bg-teal-800.text-white {:href "/share/"} "Split expense"]])))
 
-
-(def share-id #uuid "0a6b6083-2f0c-400f-a943-5063f117cc04")
-(everyone-submitted-bid? (@!shares share-id))
 
 (defn routes []
   [["/healthcheck" {:get handle-healthcheck}]
