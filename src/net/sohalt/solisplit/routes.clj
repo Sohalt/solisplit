@@ -90,18 +90,18 @@
    right])
 
 (defn create-share-form []
-  [:form.grid.grid-cols-1.md:grid-cols-2.font-sans.gap-2 {:method "post"}
-   (label "title" "What do you want to split the cost for?")
+  [:form.flex.flex-col.md:grid.md:grid-cols-2.font-sans.gap-2 {:method "post"}
+   (label {:class ["mt-3"]} "title" "What do you want to split the cost for?")
    (text-field "title")
-   (label "description" "description")
+   (label {:class ["mt-3"]} "description" "If you want you can provide a bit more detail:")
    (text-area "description")
-   (label "total" "What is the total cost that you want to split?")
+   (label {:class ["mt-3"]} "total" "What is the total cost that you want to split?")
    (currency-input {:required true} "total" "total")
-   [:p.col-span-2 "What are the names of the people you want to split the expense with?"]
+   [:p.col-span-2.mt-3 "What are the names of the people you want to split the expense with?"]
    [:div#names.col-start-2
     [:div.mb-2 (text-field {:class (concat ["p-2" "w-full"] ["rounded" "border-2" "border-dotted" "p-2"])
                             :required true} "name")]]
-   (button {:class ["bg-teal-800" "text-white"]} "create")])
+   (button {:class ["col-span-2" "bg-teal-800" "text-white"]} "create")])
 
 (defn redirect [target]
   {:status 302
@@ -198,9 +198,9 @@
 (defn share-view [router {:as share :keys [title description total people]}]
   [:div.flex.flex-col.font-medium.font-sans
    (when title [:h2 title])
-   (when description [:p description])
-   [:p (str "We want to collect " (format-currency total) (when title (str " for " title ".")))]
-   [:p "Share the following links with the people you want to split the cost with:"]
+   (when description [:p.pb-5 description])
+   [:p.pb-5 (str "We want to collect " (format-currency total) (when title (str " for " title ".")))]
+   [:p.pb-5 "Share the following links with the people you want to split the cost with:"]
    [:div.grid.gap-5 {:style {"grid-template-columns" "auto auto"}}
     (mapcat (fn [{:keys [id bid name]}]
               [[:p (str "Link for " name) (when bid [:span.text-sm "(submitted)"]) ":"]
@@ -304,18 +304,19 @@
       (not-found-response))))
 
 (defn render-contribution-form [{:keys [name bid]} {:keys [title description total people]}]
-  [:form {:method "post"}
-   (prn title)
-   (if bid
-     (list [:p (str "Thank you " name " for your submission. If you want to update the amount you'd be willing to contribute, you can resubmit the form below.")]
-           [:p "Check back later to see what share you should pay."])
-     [:p "Hello " name ])
-   [:p (str "We want to collect " (format-currency total) (str " (" (format-currency (/ total (count people))) " per person, when splitting equally)") (when title (str " for " title)) ".")]
+  [:div
+   [:p.pb-2 "Hello " name "!"]
+   (when bid
+     (list [:p.pb-2 (str "Thank you " name " for your submission. Check back later to see what share you should pay.")]
+           [:p.pb-2 "If you want to update the amount you'd be willing to contribute, you can resubmit the form below."]))
+   [:p.pb-2 (str "We want to split " (format-currency total) " among " (count people) " people " (str " (" (format-currency (/ total (count people))) " per person, when splitting equally)") (when title (str " for " title)) ".")]
    (when description [:p description])
-   [:p "How much would you be willing to contribute? You will probably end up paying a bit less."]
-   [:label {:for "bid"} "contribution"]
-   (currency-input "bid")
-   (button "submit")])
+   [:p.pb-2 "How much would you be willing to contribute? You will probably end up paying a bit less."]
+   [:form.flex.flex-col.md:grid.md:grid-cols-2.font-sans.gap-2
+    {:method "post"}
+    [:label {:for "bid"} "Maximum contribution"]
+    (currency-input {:required true} "bid")
+    (button {:class ["col-span-2" "bg-teal-800" "text-white"]} "submit")]])
 
 (defn person-view [{:keys [path-params]}]
   (let [person-id (parse-uuid (:person-id path-params))]
