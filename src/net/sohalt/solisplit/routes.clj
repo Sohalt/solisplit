@@ -84,25 +84,6 @@
 (defelem button [text]
   [:input.rounded-lg.border.p-2 {:type "submit" :value text}])
 
-(defn form-row [left right]
-  [:div.flex.flex-col.mb-2.md:flex-row
-   left
-   right])
-
-(defn create-share-form []
-  [:form.flex.flex-col.md:grid.md:grid-cols-2.font-sans.gap-2 {:method "post"}
-   (label {:class ["mt-3"]} "title" "What do you want to split the cost for?")
-   (text-field "title")
-   (label {:class ["mt-3"]} "description" "If you want you can provide a bit more detail:")
-   (text-area "description")
-   (label {:class ["mt-3"]} "total" "What is the total cost that you want to split?")
-   (currency-input {:required true} "total" "total")
-   [:p.col-span-2.mt-3 "What are the names of the people you want to split the expense with?"]
-   [:div#names.col-start-2
-    [:div.mb-2 (text-field {:class (concat ["p-2" "w-full"] ["rounded" "border-2" "border-dotted" "p-2"])
-                            :required true} "name")]]
-   (button {:class ["col-span-2" "bg-teal-800" "text-white"]} "create")])
-
 (defn redirect [target]
   {:status 302
    :headers {"Location" target}})
@@ -127,6 +108,46 @@
                                          [id person]))
                                      names))))))
 
+(defn header []
+  [:h1.bg-teal-800.text-white.text-center.text-4xl.p-2 [:a {:href "/"} "Solisplit"]])
+
+(defn html-response [body]
+  {:status 200
+   :headers {"Content-Type" "text/html; charset=utf-8"}
+   :body body})
+
+(defn not-found-response []
+  {:status 404
+   :body "not found"})
+
+(defn handle-healthcheck [req]
+  {:status 200})
+
+(defmacro page [& body]
+  `(page/html5
+    (page/include-js "/js/main.js")
+    (page/include-js "https://cdn.tailwindcss.com")
+    [:meta {:name "viewport"
+            :content "width=device-width, initial-scale=1"}]
+    (header)
+    [:div.w-full.flex.flex-row.justify-center.bg-grey-100
+     [:div.max-w-5xl.align-self-center.drop-shadow.bg-white.rounded-b.p-5
+      ~@body]]))
+
+(defn create-share-form []
+  [:form.flex.flex-col.md:grid.md:grid-cols-2.font-sans.gap-2 {:method "post"}
+   (label {:class ["mt-3"]} "title" "What do you want to split the cost for?")
+   (text-field "title")
+   (label {:class ["mt-3"]} "description" "If you want you can provide a bit more detail:")
+   (text-area "description")
+   (label {:class ["mt-3"]} "total" "What is the total cost that you want to split?")
+   (currency-input {:required true} "total" "total")
+   [:p.col-span-2.mt-3 "What are the names of the people you want to split the expense with?"]
+   [:div#names.col-start-2
+    [:div.mb-2 (text-field {:class (concat ["p-2" "w-full"] ["rounded" "border-2" "border-dotted" "p-2"])
+                            :required true} "name")]]
+   (button {:class ["col-span-2" "bg-teal-800" "text-white"]} "create")])
+
 (defn handle-create-share [{:as req :keys [form-params]}]
   (let [{:strs [title description total name]} form-params
         total (parse-currency total)
@@ -140,28 +161,6 @@
     (swap! !person->share merge (into {} (map (fn [person-id] [person-id (:id share)]) people-ids)))
     (redirect-to-share share)))
 
-(defn header []
-  [:h1.bg-teal-800.text-white.text-center.text-4xl.p-2 [:a {:href "/"} "Solisplit"]])
-
-(defmacro page [& body]
-  `(page/html5
-    (page/include-js "/js/main.js")
-    (page/include-js "https://cdn.tailwindcss.com")
-    [:meta {:name "viewport"
-            :content "width=device-width, initial-scale=1"}]
-    (header)
-    [:div.w-full.flex.flex-row.justify-center.bg-grey-100
-     [:div.max-w-5xl.align-self-center.drop-shadow.bg-white.rounded-b.p-5
-      ~@body]]))
-
-(defn html-response [body]
-  {:status 200
-   :headers {"Content-Type" "text/html; charset=utf-8"}
-   :body body})
-
-(defn handle-healthcheck [req]
-  {:status 200})
-
 (defn create-project-form [req]
   (html-response
    (page
@@ -170,30 +169,6 @@
 
 (defn everyone-submitted-bid? [{:keys [people]}]
   (every? :bid (vals people)))
-
-(defn contribution-form [{:as share :keys [id total people]}]
-  [:div
-   [:p "total: " (format-currency total) (str " (" (format-currency (/ total (count people))) " per person, when splitting equally)")]
-   [:p "find your name and enter the maximum you'd be willing to contribute (leave other fields blank)"]
-   [:form.flex.flex-col.font-medium.font-sans {:method "post"}
-    (for [{:keys [id name bid]} (vals people)]
-      [:div.flex.flex-row.mb-2
-       [:label {:class ["p-2" "flex-1"] :for id} name (when bid [:span.text-xs.text-gray.ml-1 "(already submitted)"])]
-       (currency-input {:class ["p-2" "flex-1"]} id)])
-    (button {:class ["mb-2" "bg-teal-800" "text-white"]} "submit my contribution")]
-   [:form.flex.flex-col.font-medium.font-sans {:method "get"
-                                                        :action "check"}
-    (button (let [disabled? (not (everyone-submitted-bid? share))]
-              {:id "check"
-               :disabled disabled?
-               :class (if disabled?
-                        ["bg-gray-200"]
-                        ["bg-teal-800" "text-white"])})
-            "check if goal is reached")]])
-
-(defn not-found-response []
-  {:status 404
-   :body "not found"})
 
 (defn share-view [router {:as share :keys [title description total people]}]
   [:div.flex.flex-col.font-medium.font-sans
@@ -205,7 +180,7 @@
     (mapcat (fn [{:keys [id bid name]}]
               [[:p (str "Link for " name) (when bid [:span.text-sm "(submitted)"]) ":"]
                [:p (let [person-link (str server-address (r/match->path (r/match-by-name router :person {:person-id (str id)})))]
-                           (link person-link person-link))]])
+                     (link person-link person-link))]])
             (vals people))]])
 
 (defn handle-view-share [{::r/keys [router] :keys [path-params]}]
@@ -274,16 +249,7 @@
   (= {#uuid "ec0f24ac-0bda-4bb7-b286-dd364c2c8af1" 2,
       #uuid "d7a3f660-ffc9-4cf4-a51c-4fa0f5877d04" 3,
       #uuid "c455da09-ee73-4ca0-b652-c741231c1627" 2}
-     (compute-distribution share2))
-  (render-distribution share2))
-
-(defn render-distribution [{:as share :keys [people]}]
-  (into [:div.flex.flex-col.font-medium.font-sans
-         [:p "Here is what everyone should pay:"]]
-        (for [[id contribution] (compute-distribution share)]
-          (let [name (get-in share [:people id :name])]
-            [:div.flex.flex-row.mb-2
-             [:span.flex-1 name] [:span.flex-1 (format-currency contribution)]]))))
+     (compute-distribution share2)))
 
 (defn render-not-reached [{:as share :keys [total people]}]
   (let [tc (total-committed share)
