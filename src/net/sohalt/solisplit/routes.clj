@@ -156,7 +156,7 @@
         names (filter (comp not str/blank?) name)
         share (create-share (cond-> {:total total
                                      :names names}
-                              (not (str/blank? title)) (assoc :title title )
+                              (not (str/blank? title)) (assoc :title title)
                               (not (str/blank? description)) (assoc :description description)))
         people-ids (keys (:people share))]
     (swap! !shares add-share share)
@@ -339,6 +339,37 @@
                   [:div.flex.justify-center
                    [:a.rounded-lg.border.p-2.bg-teal-800.text-white.text-lg {:href "/share/"} "Split expense"]])))
 
+(defn now []
+  (java.time.Instant/now))
+
+(defn is-expired?
+  ([timestamp]
+   (is-expired? timestamp #_(java.time.Duration/ofDays 7) (java.time.Duration/ofMinutes 5)))
+  ([timestamp expiry-duration]
+   (>= (compare (java.time.Duration/between timestamp (now)) expiry-duration) 0)))
+
+(defn cleanup [shares]
+  (into {} (filter (fn [[share-id {:keys [last-accessed]}]] (not (is-expired? last-accessed))) shares)))
+
+(defn cleanup! []
+  (swap! !shares cleanup))
+
+(defn start-cleanup!
+  "run cleanup! every hour"
+  []
+  (doto (Thread. #(loop []
+                    (cleanup!)
+                    (Thread/sleep (* 1000 10))
+                    (recur)))
+    (.start)))
+
+(defn wrap-update-last-accessed [f]
+  (fn [{:as req :keys [path-params]}]
+    (let [share-id (if-let [person-id (some-> (:person-id path-params) (parse-uuid))]
+                     (get @!person->share person-id)
+                     (some-> (:share-id path-params) (parse-uuid)))]
+      (swap! !shares assoc-in [share-id :last-accessed] (now))
+      (f req))))
 
 (defn routes []
   [["/healthcheck" {:get handle-healthcheck}]
@@ -348,12 +379,12 @@
     ["/" {:get create-project-form
           :post handle-create-share}]
     ["/:share-id"
-     ["/" {:get handle-view-share
-           :post handle-update-share}]
+     ["/" {:get (wrap-update-last-accessed handle-view-share)
+           :post (wrap-update-last-accessed handle-update-share)}]
      ["/check" {:get handle-check}]]]
    ["/contribute/:person-id" {:name :person
-                              :get person-view
-                              :post handle-submit-contribution}]])
+                              :get (wrap-update-last-accessed person-view)
+                              :post (wrap-update-last-accessed handle-submit-contribution)}]])
 
 (def dev-router #(rr/router (routes)))
 (def prod-router (constantly (rr/router (routes))))
