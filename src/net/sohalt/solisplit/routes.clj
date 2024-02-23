@@ -12,7 +12,9 @@
 (defonce !shares (atom {}))
 (defonce !person->share (atom {}))
 
-(def server-address (or (System/getenv "SERVER_ADDRESS") "http://localhost:8090"))
+(def server-address (or (System/getenv "SERVER_ADDRESS")
+                        (System/getenv "GARDEN_URL")
+                        "http://localhost:8090"))
 
 (defn person->share [person-id]
   (let [share-id (@!person->share person-id)]
@@ -340,7 +342,8 @@
 
 (defn routes []
   [["/healthcheck" {:get handle-healthcheck}]
-   ["/" {:get home}]
+   ["/" {:get home
+         :head (constantly {:status 200})}]
    ["/share"
     ["/" {:get create-project-form
           :post handle-create-share}]

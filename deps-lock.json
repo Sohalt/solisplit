@@ -343,16 +343,16 @@
       "hash": "sha256-n3qR8COqb33JF/5OlzXSzTj1kGBZpMrZLWinyMTSyxk="
     },
     {
-      "mvn-path": "http-kit/http-kit/2.8.0-SNAPSHOT/http-kit-2.8.0-20231011.124634-3.jar",
+      "mvn-path": "http-kit/http-kit/2.8.0-SNAPSHOT/http-kit-2.8.0-20240222.135109-5.jar",
       "snapshot": "http-kit-2.8.0-SNAPSHOT.jar",
       "mvn-repo": "https://repo.clojars.org/",
-      "hash": "sha256-kYQu+xi6N47xBd0TWSTObZrJy8TkiVSpxbZt5mAk8n4="
+      "hash": "sha256-Fya7GBbOrl8bCX1m0wwOnyeT37wqV5FjzVe+cnHlj+w="
     },
     {
-      "mvn-path": "http-kit/http-kit/2.8.0-SNAPSHOT/http-kit-2.8.0-20231011.124634-3.pom",
+      "mvn-path": "http-kit/http-kit/2.8.0-SNAPSHOT/http-kit-2.8.0-20240222.135109-5.pom",
       "snapshot": "http-kit-2.8.0-SNAPSHOT.pom",
       "mvn-repo": "https://repo.clojars.org/",
-      "hash": "sha256-b1qoXjmER6AUB7oQxYFWBf2L/B5oRoW6W9dwOG8Y3pE="
+      "hash": "sha256-rnfEptH0GFLM0iBpyAqO7BMElW9qyV7HUYdEGvq0D6U="
     },
     {
       "mvn-path": "io/github/nextjournal/clerk/0.15.957/clerk-0.15.957.jar",

@@ -5,7 +5,9 @@
         org.babashka/cli {:mvn/version "0.7.53"}
         io.github.nextjournal/markdown {:mvn/version "0.5.146"}}
  :aliases
- {:dev {:extra-deps {io.github.nextjournal/clerk {:mvn/version "0.15.957"}}
+ {:nextjournal/garden {:exec-fn net.sohalt.solisplit.main/start!
+                       :exec-args {:ip "0.0.0.0"}}
+  :dev {:extra-deps {io.github.nextjournal/clerk {:mvn/version "0.15.957"}}
         :extra-paths ["dev"]}
   :test {:extra-deps {}
          :extra-paths ["test"]}}}
