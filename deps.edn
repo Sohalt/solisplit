@@ -1,13 +1,13 @@
 {:paths ["src" "resources"]
- :deps {hiccup/hiccup {:mvn/version "2.0.0-RC2"}
-        metosin/reitit {:mvn/version "0.7.0-alpha7"}
-        http-kit/http-kit {:mvn/version "2.8.0-SNAPSHOT"}
-        org.babashka/cli {:mvn/version "0.7.53"}
-        io.github.nextjournal/markdown {:mvn/version "0.5.146"}}
+ :deps {hiccup/hiccup {:mvn/version "2.0.0"}
+        metosin/reitit {:mvn/version "0.11.0"}
+        http-kit/http-kit {:mvn/version "2.8.1"}
+        org.babashka/cli {:mvn/version "0.12.91"}
+        io.github.nextjournal/markdown {:mvn/version "0.7.228"}}
  :aliases
  {:nextjournal/garden {:exec-fn net.sohalt.solisplit.main/start!
                        :exec-args {:ip "0.0.0.0"}}
-  :dev {:extra-deps {io.github.nextjournal/clerk {:mvn/version "0.15.957"}}
+  :dev {:extra-deps {io.github.nextjournal/clerk {:mvn/version "0.18.1158"}}
         :extra-paths ["dev"]}
   :test {:extra-deps {}
          :extra-paths ["test"]}}}
